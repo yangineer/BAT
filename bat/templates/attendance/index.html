@@ -1,0 +1,28 @@
+{% extends 'attendance/base.html' %}
+
+{% block body %}
+<div class="jumbotron">
+	<h1>Band Attendance Tracker!</h1>
+	<p>A web app that lets you monitor your own attendance for rehearsals, gigs, and other taskings.</p>
+	<p><a class="btn btn-primary btn-lg" href="{% url 'attendance:login' %}" role="button">Login Now</a></p>
+</div>
+
+<div class="row marketing">
+	<div class="col-lg-6">
+		<h4>Track your own attendance</h4>
+		<p>See which rehearsals you've missed in the past, and which you've attended.</p>
+
+		<h4>Review your UER</h4>
+		<p>See a list of all the gigs you've played in since the beginning of the year.</p>
+
+	</div>
+
+	<div class="col-lg-6">
+		<h4>See upcoming gigs</h4>
+		<p>See which gigs are upcoming so you can plan your schedule.</p>
+
+		<h4>Look at interesting analytics</h4>
+		<p>See which months have the highest attendance, which gigs have the highest turnout, and other fascinating analytics.</p>
+	</div>
+</div>
+{% endblock %}
