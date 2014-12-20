@@ -102,7 +102,7 @@ class Job(models.Model):
 
 class Attendance(models.Model):
 	""" Represents the attendance """
-	musicians_present = models.ManyToManyField(Musician, related_name='present')
+	#musicians_present = models.ManyToManyField(Musician, related_name='present')
 	musicians_absent = models.ManyToManyField(Musician, related_name='absent', null=True, default=None)
 	job = models.OneToOneField(Job, null=True, default=None)
 

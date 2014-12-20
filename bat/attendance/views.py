@@ -6,7 +6,7 @@ def index(request):
 	if not request.user.is_authenticated():
 		return render(request, 'attendance/index.html')
 	else:
-		return render(request, 'attendance/base.html')
+		return render(request, 'attendance/framed_base.html')
 
 def login_view(request):
 	# return render(request, 'attendance/login.html')
