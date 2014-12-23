@@ -14,3 +14,5 @@ class UniformAdmin(admin.ModelAdmin):
 	list_display = ('__str__', 'name', 'headdress', 'tunic', 'kit')
 	list_editable = ('name', 'headdress', 'tunic', 'kit')
 admin.site.register(Job)
+admin.site.register(Roster)
+admin.site.register(Attendance)

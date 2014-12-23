@@ -41,7 +41,7 @@ class Musician(models.Model):
 		return '%s %s, %s' % (self.get_rank_display(), self.last_name, self.first_name)
 
 	class Meta:
-		ordering = ['instrument_section', '-rank']
+		ordering = ['instrument_section', 'is_retired','-is_on_strength', '-rank']
 
 # class On_Str_Musician(Musician):
 # 	""" Represents an on-strength musician """
@@ -106,6 +106,9 @@ class Attendance(models.Model):
 	musicians_absent = models.ManyToManyField(Musician, related_name='absent', null=True, default=None)
 	job = models.OneToOneField(Job, null=True, default=None)
 
+	def __str__(self):
+		return 'Attendance for %s' % (self.job)
+
 class ActiveRoster(models.Model):
 	""" Represents the active roster for a given year """
 	date = models.DateField(unique_for_year=True)
@@ -122,3 +125,6 @@ class Roster(models.Model):
 	""" Represents the booking roster """
 	musicians_booked = models.ManyToManyField(Musician)
 	job = models.OneToOneField(Job, null=True, default=None)
+
+	def __str__(self):
+		return 'Roster for %s' % (self.job)
