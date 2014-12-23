@@ -106,6 +106,18 @@ class Attendance(models.Model):
 	musicians_absent = models.ManyToManyField(Musician, related_name='absent', null=True, default=None)
 	job = models.OneToOneField(Job, null=True, default=None)
 
+class ActiveRoster(models.Model):
+	""" Represents the active roster for a given year """
+	date = models.DateField(unique_for_year=True)
+	musicians_active = models.ManyToManyField(Musician, related_name='active', null=True, default=None)
+
+	def fiscal_year():
+		""" Return the fiscal year of the date for the active roster """
+		if self.date.month < 4:
+			return date.year - 1
+		else:
+			return date.year 
+
 class Roster(models.Model):
 	""" Represents the booking roster """
 	musicians_booked = models.ManyToManyField(Musician)
