@@ -100,6 +100,18 @@ class Job(models.Model):
 			self.end_date = self.start_date
 		super(Job, self).save(*args, **kwargs)
 
+	def num_present(self):
+		return self.roster.musicians_booked.count() - self.attendance.musicians_absent.count()
+
+	def num_booked(self):
+		return self.roster.musicians_booked.count()
+
+	def num_on_strength_booked(self):
+		return self.roster.num_on_strength()
+
+	def num_on_strength_present(self):
+		return self.roster.num_on_strength() - self.attendance.num_on_strength()
+
 class Attendance(models.Model):
 	""" Represents the attendance """
 	#musicians_present = models.ManyToManyField(Musician, related_name='present')
@@ -108,6 +120,9 @@ class Attendance(models.Model):
 
 	def __str__(self):
 		return 'Attendance for %s' % (self.job)
+
+	def num_on_strength(self):
+		return self.musicians_absent.filter(is_on_strength=True).count()
 
 class ActiveRoster(models.Model):
 	""" Represents the active roster for a given year """
@@ -128,3 +143,6 @@ class Roster(models.Model):
 
 	def __str__(self):
 		return 'Roster for %s' % (self.job)
+
+	def num_on_strength(self):
+		return self.musicians_booked.filter(is_on_strength=True).count()

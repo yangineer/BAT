@@ -1,4 +1,17 @@
 {% extends 'attendance/framed_base.html' %}
 {% block content %}
 <p>This page shall list all the jobs over a particular time</p>
+<div class="table-responsive">
+	<table class="table">
+		<tr>
+			<th>Rank</th>
+			<th>Name</th>
+			<th>Attended</th>
+			<th>Attendance Rate</th>
+			{% for job in jobs %}
+			<th>{{ job.start_date }}</th>
+			{% endfor %}
+		</tr>
+	</table>
+</div>
 {% endblock %}
