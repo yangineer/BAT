@@ -42,14 +42,14 @@ def populate():
 def update_roster(date_string, musician):
 	date = datetime.strptime(date_string, "%d-%b-%y").date()
 	job = Job.objects.get(start_date=date)
-	roster = Roster.objects.get_or_create(job=job)[0]
-	roster.job = job
+	roster = job.roster
 	roster.musicians_booked.add(musician)
 
 def create_attendance(date_string):
 	date = datetime.strptime(date_string, "%d-%b-%y").date()
 	job = Job.objects.get(start_date=date)
-	_attendance = AttendanceRecord.objects.get_or_create(job=job)[0]
+	#_attendance = AttendanceRecord.objects.get_or_create(job=job)[0]
+	_attendance = job.attendance_record
 	return _attendance
 
 def update_attendance(_attendance, musician):
@@ -59,7 +59,7 @@ def create_gigs(gig_string):
 	for rehearsal_date in gig_string[3:]:
 		date = datetime.strptime(rehearsal_date, "%d-%b-%y").date()
 		#print ("Creating a rehearsal for " + date.isoformat())
-		name = 'rehearsal'
+		name = 'Rehearsal'
 		location = 'Fort York Armoury'
 		Job.objects.get_or_create(name=name, location=location, start_date=date)
 

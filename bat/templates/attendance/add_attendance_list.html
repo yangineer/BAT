@@ -1,0 +1,18 @@
+{% extends 'attendance/framed_base.html' %}
+{% block content %}
+<p>This page shall list all the jobs</p>
+<h3>Edit Jobs without attendance</h3>
+<ul>
+	{% for job in no_jobs %}
+		<li><a href="{% url 'attendance:jobview' job.pk %}">{{job}}</a></li>
+	{% endfor %}
+</ul>
+
+<h3>Edit Jobs with attendance</h3>
+<ul>
+	{% for job in jobs %}
+		<li><a href="{% url 'attendance:jobview' job.pk %}">{{job}}</a></li>
+	{% endfor %}
+</ul>
+
+{% endblock %}

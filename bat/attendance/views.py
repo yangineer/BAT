@@ -76,7 +76,7 @@ class TimeList(ListView, LoginRequiredMixin, TimesMixin):
 		context['musicians'] = musicians
 
 		for job in self.queryset:
-			context[job] = job.attendancerecord.musicians_present.all()
+			context[job] = job.attendance_record.musicians_present.all()
 
 		return context
 
@@ -99,6 +99,17 @@ class AddJobView(FormView, LoginRequiredMixin, AddMixin):
 	template_name = 'attendance/addjob.html'
 	form_class = JobForm
 	success_url = reverse_lazy('attendance:addjob')
+
+class AddAttendanceListView(ListView, LoginRequiredMixin, AddMixin):
+	template_name = 'attendance/add_attendance_list.html'
+	queryset = Job.objects.filter(attendance_record__musicians_present=None)
+	context_object_name = 'no_jobs'
+
+	def get_context_data(self, **kwargs):
+		context = super(AddAttendanceListView, self).get_context_data(**kwargs)
+		jobs = Job.objects.exclude(attendance_record__musicians_present=None)
+		context['jobs'] = jobs
+		return context
 
 class Analytics(TemplateView, LoginRequiredMixin, AnalyticsMixin):
 	template_name = "attendance/analytics.html"

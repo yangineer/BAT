@@ -90,6 +90,27 @@ class Uniform(models.Model):
 	def __str__(self):
 		return '%s: %s/%s/%s' % (self.name, self.get_headdress_display(), self.get_tunic_display(), self.get_kit_display())
 
+class Roster(models.Model):
+	""" Represents the booking roster """
+	musicians_booked = models.ManyToManyField(Musician, blank=True, null=True, default=None)
+
+	def __str__(self):
+		return 'Roster for %s' % (self.job)
+
+	def num_on_strength(self):
+		return self.musicians_booked.filter(is_on_strength=True).count()
+
+class AttendanceRecord(models.Model):
+	""" Represents the attendance """
+	musicians_present = models.ManyToManyField(Musician, related_name='present', null=True, default=None)
+	#musicians_absent = models.ManyToManyField(Musician, related_name='absent', null=True, default=None)
+
+	def __str__(self):
+		return 'Attendance for %s' % (self.job)
+
+	def num_on_strength(self):
+		return self.musicians_present.filter(is_on_strength=True).count()
+
 class Job(models.Model):
 	""" Represents an engagement job """
 
@@ -106,6 +127,8 @@ class Job(models.Model):
 	location = models.CharField(max_length=50)
 	uniform = models.ForeignKey(Uniform, blank=True, null=True, default=None)
 	job_type = models.IntegerField(default=0, choices=TYPE_CHOICES)
+	roster = models.OneToOneField(Roster, blank=True, null=True)
+	attendance_record = models.OneToOneField(AttendanceRecord, blank=True, null=True)
 
 	def __str__(self):
 		return '%s at %s on %s' % (self.name, self.location, self.start_date)
@@ -114,10 +137,21 @@ class Job(models.Model):
 		""" Sets the end date to start date by default """
 		if not self.end_date:
 			self.end_date = self.start_date
+
+		if not self.roster:
+			roster = Roster()
+			roster.save()
+			self.roster = roster 
+
+		if not self.attendance_record:
+			attendance_record = AttendanceRecord()
+			attendance_record.save()
+			self.attendance_record = attendance_record
+
 		super(Job, self).save(*args, **kwargs)
 
 	def num_present(self):
-		return self.attendancerecord.musicians_present.count()
+		return self.attendance_record.musicians_present.count()
 
 	def num_booked(self):
 		return self.roster.musicians_booked.count()
@@ -126,22 +160,13 @@ class Job(models.Model):
 		return self.roster.num_on_strength()
 
 	def num_on_strength_present(self):
-		return self.attendancerecord.num_on_strength()
+		return self.attendance_record.num_on_strength()
 
 	def is_rehearsal(self):
 		return self.job_type == 0
 
-class AttendanceRecord(models.Model):
-	""" Represents the attendance """
-	musicians_present = models.ManyToManyField(Musician, related_name='present', null=True, default=None)
-	#musicians_absent = models.ManyToManyField(Musician, related_name='absent', null=True, default=None)
-	job = models.OneToOneField(Job, null=True, default=None)
-
-	def __str__(self):
-		return 'Attendance for %s' % (self.job)
-
-	def num_on_strength(self):
-		return self.musicians_present.filter(is_on_strength=True).count()
+	def no_attendance(self):
+		return self.attendance_record.musicians_present == None
 
 class ActiveRoster(models.Model):
 	""" Represents the active roster for a given year """
@@ -154,14 +179,3 @@ class ActiveRoster(models.Model):
 			return date.year - 1
 		else:
 			return date.year 
-
-class Roster(models.Model):
-	""" Represents the booking roster """
-	musicians_booked = models.ManyToManyField(Musician)
-	job = models.OneToOneField(Job, null=True, default=None)
-
-	def __str__(self):
-		return 'Roster for %s' % (self.job)
-
-	def num_on_strength(self):
-		return self.musicians_booked.filter(is_on_strength=True).count()

@@ -12,7 +12,7 @@
 					<ul class="dropdown-menu" role="menu">
 						<li><a href="#">Add new rehearsal</a></li>
 						<li><a href="{% url 'attendance:addjob' %}">Add new gig</a></li>
-						<li><a href="#">Add to existing job</a></li>
+						<li><a href="{% url 'attendance:add_attendance_list' %}">Add to existing job</a></li>
 					</ul>
 				</li>
 				<li{% if active == 'analytics' %} class="active"{% endif %}><a href="{% url 'attendance:analytics' %}">View Analytics</a></li>
