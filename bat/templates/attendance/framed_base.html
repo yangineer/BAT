@@ -7,11 +7,12 @@
 				<li{% if active == 'musicians' %} class="active" {% endif %}><a href="{% url 'attendance:musicians' %}">View by Musician</a></li>
 				<li{% if active == 'jobs' %} class="active"{% endif %}><a href="{% url 'attendance:jobs' %}">View by Job</a></li>
 				<li{% if active == 'times' %} class="active"{% endif %}><a href="{% url 'attendance:times' %}">View by Year/Month</a></li>
-				<li role="presentation" class="dropdown">
+				<li role="presentation" class="dropdown{% if active == 'add' %} active{% endif %}">
 					<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" href="#">Record Attendance</a>
 					<ul class="dropdown-menu" role="menu">
-						<li><a href="#">Add New Rehearsal</a></li>
-						<li><a href="#">Add New Gig</a></li>
+						<li><a href="#">Add new rehearsal</a></li>
+						<li><a href="{% url 'attendance:addjob' %}">Add new gig</a></li>
+						<li><a href="#">Add to existing job</a></li>
 					</ul>
 				</li>
 				<li{% if active == 'analytics' %} class="active"{% endif %}><a href="{% url 'attendance:analytics' %}">View Analytics</a></li>

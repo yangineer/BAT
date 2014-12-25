@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from django.contrib.auth.views import logout, login
-from django.views.generic import ListView, TemplateView, DetailView
+from django.views.generic import ListView, TemplateView, DetailView, FormView
 from django.views.generic.base import ContextMixin
 from attendance.models import Musician, Job
+from attendance.forms import JobForm
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.core.urlresolvers import reverse_lazy
 
 # Create your views here.
 def index(request):
@@ -68,6 +70,16 @@ class TimeList(ListView, LoginRequiredMixin, TimesMixin):
 	queryset = Job.objects.filter(start_date__year=2014).order_by('start_date')
 	context_object_name = "jobs"
 
+	def get_context_data(self, **kwargs):
+		context = super(TimeList, self).get_context_data(**kwargs)
+		musicians = Musician.objects.all()
+		context['musicians'] = musicians
+
+		for job in self.queryset:
+			context[job] = job.attendancerecord.musicians_present.all()
+
+		return context
+
 class JobList(ListView, LoginRequiredMixin, JobMixin):
 	model = Job
 	template_name = "attendance/jobs.html"
@@ -78,11 +90,15 @@ class JobView(DetailView, LoginRequiredMixin, JobMixin):
 	context_object_name = 'job'
 	template_name = "attendance/job.html"
 
-	# def get_context_data(self, **kwargs):
-	# 	context = super(JobView, self).get_context_data(**kwargs)
-		
-	# 	context['active'] = 'add'
-	# 	return context
+class MusicianView(DetailView, LoginRequiredMixin, MusicianMixin):
+	model = Musician
+	context_object_name = "musician"
+	template_name = "attendance/musician.html"
+
+class AddJobView(FormView, LoginRequiredMixin, AddMixin):
+	template_name = 'attendance/addjob.html'
+	form_class = JobForm
+	success_url = reverse_lazy('attendance:addjob')
 
 class Analytics(TemplateView, LoginRequiredMixin, AnalyticsMixin):
 	template_name = "attendance/analytics.html"

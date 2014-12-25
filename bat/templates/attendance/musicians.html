@@ -3,7 +3,7 @@
 <p>This page shall list all the musicians</p>
 <ul>
 	{% for musician in musicians %}
-		<li> {{musician}}</li>
+		<li><a href="{% url 'attendance:musicianview' musician.pk %}">{{musician}}</a></li>
 	{% endfor %}
 </ul>
 {% endblock %}

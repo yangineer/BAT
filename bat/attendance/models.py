@@ -40,6 +40,14 @@ class Musician(models.Model):
 	def __str__(self):
 		return '%s %s, %s' % (self.get_rank_display(), self.last_name, self.first_name)
 
+	def name(self):
+		return self.last_name + ", " + self.first_name
+
+	def present_jobs(self):
+		"""returns a list of jobs that the user is present in """
+		attendances = self.present.filter(musicians_present__id=self.pk).select_related('job')
+		return [x.job for x in attendances]
+
 	class Meta:
 		ordering = ['instrument_section', 'is_retired','-is_on_strength', '-rank']
 
@@ -84,12 +92,20 @@ class Uniform(models.Model):
 
 class Job(models.Model):
 	""" Represents an engagement job """
-	name = models.CharField(max_length=30)
+
+	TYPE_CHOICES = list(enumerate([
+		'Rehearsal',
+		'Parade',
+		'Concert',
+	]))
+
+	name = models.CharField(max_length=50)
 	start_date = models.DateField()
 	end_date = models.DateField(blank=True, default=None)
 	call_time = models.TimeField(blank=True, null=True)
-	location = models.CharField(max_length=30)
-	uniform = models.ForeignKey(Uniform, null=True, default=None)
+	location = models.CharField(max_length=50)
+	uniform = models.ForeignKey(Uniform, blank=True, null=True, default=None)
+	job_type = models.IntegerField(default=0, choices=TYPE_CHOICES)
 
 	def __str__(self):
 		return '%s at %s on %s' % (self.name, self.location, self.start_date)
@@ -101,7 +117,7 @@ class Job(models.Model):
 		super(Job, self).save(*args, **kwargs)
 
 	def num_present(self):
-		return self.roster.musicians_booked.count() - self.attendance.musicians_absent.count()
+		return self.attendancerecord.musicians_present.count()
 
 	def num_booked(self):
 		return self.roster.musicians_booked.count()
@@ -110,19 +126,22 @@ class Job(models.Model):
 		return self.roster.num_on_strength()
 
 	def num_on_strength_present(self):
-		return self.roster.num_on_strength() - self.attendance.num_on_strength()
+		return self.attendancerecord.num_on_strength()
 
-class Attendance(models.Model):
+	def is_rehearsal(self):
+		return self.job_type == 0
+
+class AttendanceRecord(models.Model):
 	""" Represents the attendance """
-	#musicians_present = models.ManyToManyField(Musician, related_name='present')
-	musicians_absent = models.ManyToManyField(Musician, related_name='absent', null=True, default=None)
+	musicians_present = models.ManyToManyField(Musician, related_name='present', null=True, default=None)
+	#musicians_absent = models.ManyToManyField(Musician, related_name='absent', null=True, default=None)
 	job = models.OneToOneField(Job, null=True, default=None)
 
 	def __str__(self):
 		return 'Attendance for %s' % (self.job)
 
 	def num_on_strength(self):
-		return self.musicians_absent.filter(is_on_strength=True).count()
+		return self.musicians_present.filter(is_on_strength=True).count()
 
 class ActiveRoster(models.Model):
 	""" Represents the active roster for a given year """

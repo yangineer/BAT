@@ -2,16 +2,31 @@
 {% block content %}
 <p>This page shall list all the jobs over a particular time</p>
 <div class="table-responsive">
-	<table class="table">
+	<table class="table table-striped">
 		<tr>
 			<th>Rank</th>
 			<th>Name</th>
-			<th>Attended</th>
-			<th>Attendance Rate</th>
 			{% for job in jobs %}
-			<th>{{ job.start_date }}</th>
+			<th><a href="{% url 'attendance:jobview' job.pk %}">{{ job.start_date }}</a></th>
 			{% endfor %}
 		</tr>
+		{% for musician in musicians %}
+		<tr>
+			<td>{{musician.get_rank_display}}</td>
+			<td><a href="{% url 'attendance:musicianview' musician.pk %}">{{musician.name}}</a></td>
+			{% with present_jobs=musician.present_jobs %}
+			{% for job in jobs %}
+			<td>
+			{% if job in present_jobs %}
+			<span class="glyphicon glyphicon-ok"></span>
+			{% else %}
+			<span class="glyphicon glyphicon-remove"></span>
+			{% endif %}
+			</td> 
+			{% endfor %}
+			{% endwith %}
+		</tr>
+		{% endfor %}
 	</table>
 </div>
 {% endblock %}

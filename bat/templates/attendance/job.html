@@ -5,6 +5,10 @@
 	<li>Name: {{job.name|capfirst}}</li>
 	<li>Date: {{job.start_date}}</li>
 	<li>Location: {{job.location}}</li>
+	{% if not job.attendancerecord %}
+	<li>Attendance has not been recorded yet.</li>
+</ul>
+	{% else %}
 	<li>Musicians Present: {{job.num_present}} out of {{job.num_booked}}</li>
 	<li>On Strength Musicians Present: {{job.num_on_strength_present}} out of {{job.num_on_strength_booked}}
 </ul>
@@ -19,8 +23,8 @@
 		{% for musician in job.roster.musicians_booked.all %}
 		<tr{% if musician.is_on_strength %} class="warning"{% endif %}>
 			<td>{{musician.get_rank_display}}</td>
-			<td>{{musician.last_name}}, {{musician.first_name}}</td>
-			{% if musician in job.attendance.musicians_absent.all %}
+			<td>{{musician.name}}</td>
+			{% if musician not in job.attendancerecord.musicians_present.all %}
 			<td>
 				<span class="glyphicon glyphicon-remove"></span>
 			{% else %}
@@ -32,5 +36,6 @@
 		{% endfor %}
 	</table>
 </div>
+{% endif %}
 
 {% endblock %}

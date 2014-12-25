@@ -1,0 +1,9 @@
+{% extends 'attendance/framed_base.html' %}
+{% block content %}
+<p>This page shall list details of a musician</p>
+<ul>
+	<li>Rank: {{musician.get_rank_display}} {% if musician.is_on_strength %}<span class="glyphicon glyphicon-star"></span></li>{% endif %}
+	<li>Name: {{musician.name}}</li>
+	<li>Section: {{musician.get_instrument_section_display}}</li>
+</ul>
+{% endblock %}

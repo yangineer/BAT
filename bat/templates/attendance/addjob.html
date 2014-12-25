@@ -1,0 +1,9 @@
+{% extends 'attendance/framed_base.html' %}
+{% block content %}
+<h3>Add new job</h3>
+<form action="{% url 'attendance:addjob' %}" method="post">
+	{% csrf_token %}
+	{{form.as_p}}
+	<input type="submit" value="Submit" />
+</form>
+{% endblock %}

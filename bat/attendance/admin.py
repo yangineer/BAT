@@ -1,5 +1,5 @@
 from django.contrib import admin
-from attendance.models import Job, Musician, Roster, Attendance, Uniform
+from attendance.models import Job, Musician, Roster, AttendanceRecord, Uniform
 
 # Register your models here.
 
@@ -13,6 +13,7 @@ class MusicianAdmin(admin.ModelAdmin):
 class UniformAdmin(admin.ModelAdmin):
 	list_display = ('__str__', 'name', 'headdress', 'tunic', 'kit')
 	list_editable = ('name', 'headdress', 'tunic', 'kit')
+	
 admin.site.register(Job)
 admin.site.register(Roster)
-admin.site.register(Attendance)
+admin.site.register(AttendanceRecord)

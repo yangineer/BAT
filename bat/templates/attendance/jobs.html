@@ -3,7 +3,7 @@
 <p>This page shall list all the jobs</p>
 <ul>
 	{% for job in jobs %}
-		<li> <a href="{% url 'attendance:jobview' job.pk %}">{{job}}</a></li>
+		<li><a href="{% url 'attendance:jobview' job.pk %}">{{job}}</a></li>
 	{% endfor %}
 </ul>
 {% endblock %}
