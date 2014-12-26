@@ -100,6 +100,15 @@ class AddJobView(FormView, LoginRequiredMixin, AddMixin):
 	form_class = JobForm
 	success_url = reverse_lazy('attendance:addjob')
 
+class AddRehearsal(FormView, LoginRequiredMixin, AddMixin):
+	template_name = 'attendance/addjob.html'
+
+class AddRosterView(LoginRequiredMixin, AddMixin):
+	template_name = 'attendance/add_roster.html'
+
+class AddAttendanceView(LoginRequiredMixin, AddMixin):
+	template_name = 'attendance/add_attendance.html'
+
 class AddAttendanceListView(ListView, LoginRequiredMixin, AddMixin):
 	template_name = 'attendance/add_attendance_list.html'
 	queryset = Job.objects.filter(attendance_record__musicians_present=None)
