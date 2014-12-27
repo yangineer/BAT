@@ -69,7 +69,8 @@ class MusicianList(ListView, LoginRequiredMixin, MusicianMixin):
 
 class TimeList(ListView, LoginRequiredMixin, TimesMixin):
 	template_name = "attendance/times.html"
-	queryset = Job.objects.filter(start_date__year=2014).order_by('start_date')
+	#queryset = Job.objects.filter(start_date__year=2014).order_by('start_date')
+	queryset = Job.objects.all().order_by('start_date')
 	context_object_name = "jobs"
 
 	def get_context_data(self, **kwargs):
@@ -84,7 +85,7 @@ class TimeList(ListView, LoginRequiredMixin, TimesMixin):
 		return context
 
 class RehearsalYearView(TimeList):
-	queryset = Job.objects.filter(start_date__year=2014, job_type=0).order_by('start_date')
+	queryset = Job.objects.filter(job_type=0).order_by('start_date')
 
 	def get_context_data(self, **kwargs):
 		context = super(RehearsalYearView, self).get_context_data(**kwargs)
@@ -92,7 +93,7 @@ class RehearsalYearView(TimeList):
 		return context
 
 class GigYearView(TimeList):
-	queryset = Job.objects.filter(start_date__year=2014).exclude(job_type=0).order_by('start_date')
+	queryset = Job.objects.exclude(job_type=0).order_by('start_date')
 
 	def get_context_data(self, **kwargs):
 		context = super(GigYearView, self).get_context_data(**kwargs)
