@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from django.contrib.auth.views import logout, login
-from django.views.generic import ListView, TemplateView, DetailView, FormView, CreateView
+from django.views.generic import ListView, TemplateView, DetailView, UpdateView, CreateView
 from django.views.generic.base import ContextMixin
-from attendance.models import Musician, Job
-from attendance.forms import JobForm
-from django.forms.formsets import formset_factory
+#from django.views.generic.edit import ProcessFormView
+from attendance.models import Musician, Job, AttendanceRecord
+from attendance.forms import JobForm, ChecklistForm
+#from django.forms.formsets import formset_factory
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.core.urlresolvers import reverse_lazy
@@ -91,10 +92,23 @@ class JobView(DetailView, LoginRequiredMixin, JobMixin):
 	context_object_name = 'job'
 	template_name = "attendance/job.html"
 
+	def get_context_data(self, **kwargs):
+		context = super(JobView, self).get_context_data(**kwargs)
+		musicians = Musician.objects.all()
+		context['musicians'] = musicians
+		return context
+
 class MusicianView(DetailView, LoginRequiredMixin, MusicianMixin):
 	model = Musician
 	context_object_name = "musician"
 	template_name = "attendance/musician.html"
+
+	def get_context_data(self, **kwargs):
+		context = super(MusicianView, self).get_context_data(**kwargs)
+		musicians = Musician.objects.all()
+		context['total_rehearsals'] = Job.objects.filter(job_type=0).count()
+		context['total_gigs'] = Job.objects.exclude(job_type=0).count()
+		return context
 
 class AddJobView(CreateView, LoginRequiredMixin, AddMixin):
 	template_name = 'attendance/addjob.html'
@@ -122,14 +136,17 @@ class AddRosterView(DetailView, LoginRequiredMixin, AddMixin):
 		context['title'] = 'Roster'
 		return context
 
-class AddAttendanceView(DetailView, LoginRequiredMixin, AddMixin):
-	model = Job
-	context_object_name = 'job'
+class AddAttendanceView(UpdateView, LoginRequiredMixin, AddMixin):
+	model = AttendanceRecord
+	context_object_name = 'attendance_record'
 	template_name = 'attendance/add_attendance.html'
+	form_class = ChecklistForm
+	# success_url = get_object().job.get_absolute_url()
 
 	def get_context_data(self, **kwargs):
 		context = super(AddAttendanceView, self).get_context_data(**kwargs)
 		context['title'] = 'Attendance'
+		context['job'] = self.get_object().job
 		return context
 
 class AddAttendanceListView(ListView, LoginRequiredMixin, AddMixin):

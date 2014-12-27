@@ -4,14 +4,14 @@
 <h3>Edit Jobs without attendance</h3>
 <ul>
 	{% for job in no_jobs %}
-		<li><a href="{% url 'attendance:add_attendance' job.pk %}">{{job}}</a></li>
+		<li><a href="{% url 'attendance:add_attendance' job.attendance_record.pk %}">{{job}}</a></li>
 	{% endfor %}
 </ul>
 
 <h3>Edit Jobs with attendance</h3>
 <ul>
 	{% for job in jobs %}
-		<li><a href="{% url 'attendance:add_attendance' job.pk %}">{{job}}</a></li>
+		<li><a href="{% url 'attendance:add_attendance' job.attendance_record.pk %}">{{job}}</a></li>
 	{% endfor %}
 </ul>
 

@@ -29,7 +29,7 @@
 			<th>Attended?</th>
 		</tr>
 		{% with present=job.attendance_record.musicians_present.all %}
-		{% for musician in job.roster.musicians_booked.all %}
+		{% for musician in musicians %}
 		<tr{% if musician.is_on_strength %} class="warning"{% endif %}>
 			<td>{{musician.get_rank_display}}</td>
 			<td>{{musician.name}}</td>

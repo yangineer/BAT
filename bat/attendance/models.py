@@ -49,6 +49,20 @@ class Musician(models.Model):
 		attendances = self.present.filter(musicians_present__id=self.pk).select_related('job')
 		return [x.job for x in attendances]
 
+	def present_rehearsals(self):
+		attendances = self.present.filter(musicians_present__id=self.pk).select_related('job')
+		return [x.job for x in attendances if x.job.job_type == 0]
+
+	def present_gigs(self):
+		attendances = self.present.filter(musicians_present__id=self.pk).select_related('job')
+		return [x.job for x in attendances if x.job.job_type != 0]
+
+	def num_present_rehearsals(self):
+		return len(self.present_rehearsals())
+
+	def num_present_gigs(self):
+		return len(self.present_gigs())
+
 	class Meta:
 		ordering = ['instrument_section', 'is_retired','-is_on_strength', '-rank']
 
@@ -110,8 +124,11 @@ class AttendanceRecord(models.Model):
 		return 'Attendance for %s' % (self.job)
 
 	def num_on_strength(self):
-		#return self.musicians_present.filter(is_on_strength=True).count()
-		return Musician.objects.filter(is_on_strength=True).count()
+		return self.musicians_present.filter(is_on_strength=True).count()
+		#return Musician.objects.filter(is_on_strength=True).count()
+
+	def get_absolute_url(self):
+		return reverse('attendance:jobview', kwargs={'pk': self.job.pk})
 
 class Job(models.Model):
 	""" Represents an engagement job """
@@ -163,7 +180,8 @@ class Job(models.Model):
 		return Musician.objects.count()
 
 	def num_on_strength_booked(self):
-		return self.roster.num_on_strength()
+		#return self.roster.num_on_strength()
+		return Musician.objects.filter(is_on_strength=True).count()
 
 	def num_on_strength_present(self):
 		return self.attendance_record.num_on_strength()

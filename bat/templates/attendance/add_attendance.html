@@ -7,4 +7,9 @@
 	<li>Date: {{job.start_date}}</li>
 	<li>Location: {{job.location}}</li>
 </ul>
+<form action="{% url 'attendance:add_attendance' attendance_record.pk %}" method="post">
+	{% csrf_token %}
+	{{form}}
+	<input class="btn btn-default" type="submit" value="Save"/>
+</form>
 {% endblock %}

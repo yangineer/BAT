@@ -4,6 +4,6 @@
 <form action="{% url 'attendance:addjob' %}" method="post">
 	{% csrf_token %}
 	{{form.as_p}}
-	<input type="submit" value="Submit" />
+	<input class="btn btn-default" type="submit" value="Submit" />
 </form>
 {% endblock %}
