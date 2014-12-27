@@ -63,6 +63,12 @@ class Musician(models.Model):
 	def num_present_gigs(self):
 		return len(self.present_gigs())
 
+	def percent_present_rehearsals(self):
+		return 100 * self.num_present_rehearsals() / Job.objects.filter(job_type=0).count()
+
+	def percent_present_gigs(self):
+		return 100 * self.num_present_gigs() / Job.objects.exclude(job_type=0).count()
+
 	class Meta:
 		ordering = ['instrument_section', 'is_retired','-is_on_strength', '-rank']
 

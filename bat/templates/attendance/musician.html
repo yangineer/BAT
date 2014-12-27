@@ -1,11 +1,29 @@
 {% extends 'attendance/framed_base.html' %}
 {% block content %}
-<p>This page shall list details of a musician</p>
+<h3>Musician Detail</h3>
 <ul>
 	<li>Rank: {{musician.get_rank_display}} {% if musician.is_on_strength %}<span class="glyphicon glyphicon-star"></span></li>{% endif %}
 	<li>Name: {{musician.name}}</li>
 	<li>Section: {{musician.get_instrument_section_display}}</li>
-	<li>Rehearsal Attendance: {{musician.num_present_rehearsals}} out of {{total_rehearsals}}</li>
-	<li>Gig Attendance: {{musician.num_present_gigs}} out of {{total_gigs}}</li>
+	<li>Rehearsal Attendance: {{musician.num_present_rehearsals}} out of {{total_rehearsals}} ({{musician.percent_present_rehearsals|floatformat}}%)</li>
+	<li>Gig Attendance: {{musician.num_present_gigs}} out of {{total_gigs}} ({{musician.percent_present_gigs|floatformat}}%)</li>
 </ul>
+<div class="row">
+	<div class="col-sm-3">
+		<h4>Rehearsals Attended:</h4>
+		<ul>
+			{% for rehearsal in musician.present_rehearsals %}
+			<li><a href="{% url 'attendance:jobview' rehearsal.pk %}">{{rehearsal.start_date}}</a></li>
+			{% endfor %}
+		</ul>
+	</div>
+	<div class="col-sm-5">
+		<h4>Gigs Attended:</h4>
+		<ul>
+			{% for gig in musician.present_gigs %}
+			<li><a href="{% url 'attendance:jobview' gig.pk %}">{{gig}}</a></li>
+			{% endfor %}
+		</ul>
+	</div>
+</div>
 {% endblock %}
