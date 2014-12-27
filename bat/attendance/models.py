@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 # Create your models here.
 class Musician(models.Model):
@@ -109,7 +110,8 @@ class AttendanceRecord(models.Model):
 		return 'Attendance for %s' % (self.job)
 
 	def num_on_strength(self):
-		return self.musicians_present.filter(is_on_strength=True).count()
+		#return self.musicians_present.filter(is_on_strength=True).count()
+		return Musician.objects.filter(is_on_strength=True).count()
 
 class Job(models.Model):
 	""" Represents an engagement job """
@@ -133,6 +135,9 @@ class Job(models.Model):
 	def __str__(self):
 		return '%s at %s on %s' % (self.name, self.location, self.start_date)
 
+	def get_absolute_url(self):
+		return reverse('attendance:jobview', kwargs={'pk': self.pk})
+
 	def save(self, *args, **kwargs):
 		""" Sets the end date to start date by default """
 		if not self.end_date:
@@ -154,7 +159,8 @@ class Job(models.Model):
 		return self.attendance_record.musicians_present.count()
 
 	def num_booked(self):
-		return self.roster.musicians_booked.count()
+		#return self.roster.musicians_booked.count()
+		return Musician.objects.count()
 
 	def num_on_strength_booked(self):
 		return self.roster.num_on_strength()
@@ -165,8 +171,11 @@ class Job(models.Model):
 	def is_rehearsal(self):
 		return self.job_type == 0
 
-	def no_attendance(self):
-		return self.attendance_record.musicians_present == None
+	def has_roster(self):
+		return self.roster.musicians_booked.count()
+
+	def has_attendance(self):
+		return self.attendance_record.musicians_present.count()
 
 class ActiveRoster(models.Model):
 	""" Represents the active roster for a given year """

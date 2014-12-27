@@ -1,9 +1,10 @@
 from django.shortcuts import render
 from django.contrib.auth.views import logout, login
-from django.views.generic import ListView, TemplateView, DetailView, FormView
+from django.views.generic import ListView, TemplateView, DetailView, FormView, CreateView
 from django.views.generic.base import ContextMixin
 from attendance.models import Musician, Job
 from attendance.forms import JobForm
+from django.forms.formsets import formset_factory
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.core.urlresolvers import reverse_lazy
@@ -95,19 +96,41 @@ class MusicianView(DetailView, LoginRequiredMixin, MusicianMixin):
 	context_object_name = "musician"
 	template_name = "attendance/musician.html"
 
-class AddJobView(FormView, LoginRequiredMixin, AddMixin):
+class AddJobView(CreateView, LoginRequiredMixin, AddMixin):
 	template_name = 'attendance/addjob.html'
+	#model = Job
 	form_class = JobForm
-	success_url = reverse_lazy('attendance:addjob')
+	context_object_name = "job"
 
-class AddRehearsal(FormView, LoginRequiredMixin, AddMixin):
+class AddRehearsalView(CreateView, LoginRequiredMixin, AddMixin):
 	template_name = 'attendance/addjob.html'
+	context_object_name = 'job'
+	#model = Job
+	form_class = JobForm
+	initial = {
+		'name': 'Rehearsal',
+		'location': 'Fort York Armoury',
+		'call_time': '19:45'}
 
-class AddRosterView(LoginRequiredMixin, AddMixin):
-	template_name = 'attendance/add_roster.html'
-
-class AddAttendanceView(LoginRequiredMixin, AddMixin):
+class AddRosterView(DetailView, LoginRequiredMixin, AddMixin):
+	model = Job
+	context_object_name = 'job'
 	template_name = 'attendance/add_attendance.html'
+
+	def get_context_data(self, **kwargs):
+		context = super(AddRosterView, self).get_context_data(**kwargs)
+		context['title'] = 'Roster'
+		return context
+
+class AddAttendanceView(DetailView, LoginRequiredMixin, AddMixin):
+	model = Job
+	context_object_name = 'job'
+	template_name = 'attendance/add_attendance.html'
+
+	def get_context_data(self, **kwargs):
+		context = super(AddAttendanceView, self).get_context_data(**kwargs)
+		context['title'] = 'Attendance'
+		return context
 
 class AddAttendanceListView(ListView, LoginRequiredMixin, AddMixin):
 	template_name = 'attendance/add_attendance_list.html'

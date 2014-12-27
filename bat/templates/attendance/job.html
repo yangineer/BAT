@@ -5,9 +5,17 @@
 	<li>Name: {{job.name|capfirst}}</li>
 	<li>Date: {{job.start_date}}</li>
 	<li>Location: {{job.location}}</li>
-	{% if job.no_attendance %}
+	{% comment %}
+	{% if not job.has_roster %}
+	<li>Booking has not been recorded yet.</li>
+</ul>
+<a class="btn btn-default" href="{% url 'attendance:add_roster' job.pk %}" role="button">Add Roster</a>
+	{% elif not job.has_attendance %}
+	{% endcomment %}
+	{% if not job.has_attendance %}
 	<li>Attendance has not been recorded yet.</li>
 </ul>
+<a class="btn btn-default" href="{% url 'attendance:add_attendance' job.pk %}" role="button">Add Attendance</a>
 	{% else %}
 	<li>Musicians Present: {{job.num_present}} out of {{job.num_booked}}</li>
 	<li>On Strength Musicians Present: {{job.num_on_strength_present}} out of {{job.num_on_strength_booked}}

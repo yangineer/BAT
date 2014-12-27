@@ -1,0 +1,10 @@
+{% extends 'attendance/framed_base.html' %}
+{% block content %}
+<p>This page shall display the job's details and attendance form</p>
+<h3>Recording {{title}}</h3>
+<ul>
+	<li>Name: {{job.name|capfirst}}</li>
+	<li>Date: {{job.start_date}}</li>
+	<li>Location: {{job.location}}</li>
+</ul>
+{% endblock %}
