@@ -6,7 +6,7 @@ class JobForm(forms.ModelForm):
 
 	class Meta:
 		model = Job
-		fields = ['name', 'start_date', 'end_date', 'call_time', 'location', 'uniform', 'job_type']
+		fields = ['name', 'start_date', 'location', 'job_type']
 		widgets = {'start_date': SelectDateWidget()}
 
 
