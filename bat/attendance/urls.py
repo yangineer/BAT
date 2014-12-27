@@ -1,6 +1,6 @@
 from django.conf.urls import url, patterns
 from attendance.views import index, login_view, logout_view
-from attendance.views import MusicianList, JobList, TimeList, Analytics, JobView, MusicianView, AddJobView, AddAttendanceListView, AddAttendanceView, AddRosterView, AddRehearsalView
+from attendance.views import MusicianList, JobList, TimeList, Analytics, JobView, MusicianView, AddJobView, AddAttendanceListView, AddAttendanceView, AddRosterView, AddRehearsalView, RehearsalYearView, GigYearView
 
 urlpatterns = patterns('',
 	url(r'^$', index, name='index'),
@@ -8,6 +8,8 @@ urlpatterns = patterns('',
 	url(r'^logout/$', logout_view, name='logout'),
 	url(r'^musicians/$', MusicianList.as_view(), name='musicians'),
 	url(r'^times/$', TimeList.as_view(), name='times'),
+	url(r'^times/rehearsal/$', RehearsalYearView.as_view(), name='times_rehearsal'),
+	url(r'^times/gig/$', GigYearView.as_view(), name='times_gig'),
 	url(r'^jobs/$', JobList.as_view(), name='jobs'),
 	url(r'^jobs/(?P<pk>\d+)/$', JobView.as_view(), name='jobview'),
 	url(r'^musicians/(?P<pk>\d+)/$', MusicianView.as_view(), name='musicianview'),

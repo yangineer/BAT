@@ -74,12 +74,29 @@ class TimeList(ListView, LoginRequiredMixin, TimesMixin):
 
 	def get_context_data(self, **kwargs):
 		context = super(TimeList, self).get_context_data(**kwargs)
+		context['yearview'] = 'all'
 		musicians = Musician.objects.all()
 		context['musicians'] = musicians
 
 		for job in self.queryset:
 			context[job] = job.attendance_record.musicians_present.all()
 
+		return context
+
+class RehearsalYearView(TimeList):
+	queryset = Job.objects.filter(start_date__year=2014, job_type=0).order_by('start_date')
+
+	def get_context_data(self, **kwargs):
+		context = super(RehearsalYearView, self).get_context_data(**kwargs)
+		context['yearview'] = 'rehearsal'
+		return context
+
+class GigYearView(TimeList):
+	queryset = Job.objects.filter(start_date__year=2014).exclude(job_type=0).order_by('start_date')
+
+	def get_context_data(self, **kwargs):
+		context = super(GigYearView, self).get_context_data(**kwargs)
+		context['yearview'] = 'gig'
 		return context
 
 class JobList(ListView, LoginRequiredMixin, JobMixin):
