@@ -9,11 +9,11 @@ class MusicianAdmin(admin.ModelAdmin):
 	list_editable = ('instrument_section', 'is_on_strength') 
 	list_filter = ('is_retired', 'is_on_strength')
 
-@admin.register(Uniform)
-class UniformAdmin(admin.ModelAdmin):
-	list_display = ('__str__', 'name', 'headdress', 'tunic', 'kit')
-	list_editable = ('name', 'headdress', 'tunic', 'kit')
+# @admin.register(Uniform)
+# class UniformAdmin(admin.ModelAdmin):
+# 	list_display = ('__str__', 'name', 'headdress', 'tunic', 'kit')
+# 	list_editable = ('name', 'headdress', 'tunic', 'kit')
 	
 admin.site.register(Job)
-admin.site.register(Roster)
+#admin.site.register(Roster)
 admin.site.register(AttendanceRecord)

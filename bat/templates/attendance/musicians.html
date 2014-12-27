@@ -1,6 +1,6 @@
 {% extends 'attendance/framed_base.html' %}
 {% block content %}
-<p>This page shall list all the musicians</p>
+<h3>Musician List View</h3>
 <ul>
 	{% for musician in musicians %}
 		<li><a href="{% url 'attendance:musicianview' musician.pk %}">{{musician}}</a></li>

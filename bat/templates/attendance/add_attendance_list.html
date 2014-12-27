@@ -1,18 +1,24 @@
 {% extends 'attendance/framed_base.html' %}
 {% block content %}
-<p>This page shall list all the jobs</p>
-<h3>Edit Jobs without attendance</h3>
-<ul>
-	{% for job in no_jobs %}
-		<li><a href="{% url 'attendance:add_attendance' job.attendance_record.pk %}">{{job}}</a></li>
-	{% endfor %}
-</ul>
+<h3>Record Attendance</h3>
 
-<h3>Edit Jobs with attendance</h3>
-<ul>
-	{% for job in jobs %}
-		<li><a href="{% url 'attendance:add_attendance' job.attendance_record.pk %}">{{job}}</a></li>
-	{% endfor %}
-</ul>
+<div class="row">
+	<div class="col-sm-5">
+		<h4>Edit Jobs without attendance</h4>
+		<ul>
+			{% for job in no_jobs %}
+				<li><a href="{% url 'attendance:add_attendance' job.attendance_record.pk %}">{{job}}</a></li>
+			{% endfor %}
+		</ul>
+	</div>
+	<div class="col-sm-5">
+		<h4>Edit Jobs with attendance</h4>
+		<ul>
+			{% for job in jobs %}
+				<li><a href="{% url 'attendance:add_attendance' job.attendance_record.pk %}">{{job}}</a></li>
+			{% endfor %}
+		</ul>
+	</div>
+</div>
 
 {% endblock %}
