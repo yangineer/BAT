@@ -1,1 +1,1 @@
-web: gunicorn bat/bat.wsgi --log-file -
+web: gunicorn bat.wsgi --log-file -
