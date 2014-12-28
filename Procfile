@@ -1,1 +1,1 @@
-web: sh -c 'cd ./bat/ && exec gunicorn bat.wsgi --log-file -'
+web: gunicorn bat.wsgi --log-file -
