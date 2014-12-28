@@ -12,9 +12,6 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-import dj_database_url
-DATABASES['default'] =  dj_database_url.config()
-
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
@@ -59,6 +56,9 @@ ROOT_URLCONF = 'bat.urls'
 
 WSGI_APPLICATION = 'bat.wsgi.application'
 
+
+import dj_database_url
+DATABASES['default'] =  dj_database_url.config()
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
