@@ -2,6 +2,8 @@
 *.sqlite3
 *.sublime*
 .DS_Store
+migrations
+key.txt
 
 
 # Byte-compiled / optimized / DLL files
