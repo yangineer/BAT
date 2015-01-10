@@ -13,19 +13,20 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='ActiveRoster',
+            name='AttendanceRecord',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True, auto_created=True, verbose_name='ID')),
-                ('date', models.DateField(unique_for_year=True)),
+                ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
+                ('status', models.CharField(choices=[('O', 'On-time'), ('L', 'Late'), ('A', 'Absent')], max_length=1)),
             ],
             options={
             },
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='AttendanceRecord',
+            name='BookingRecord',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True, auto_created=True, verbose_name='ID')),
+                ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
+                ('status', models.CharField(choices=[('Y', 'Yes'), ('N', 'No'), ('M', 'Maybe'), ('R', 'Yet to Reply')], max_length=1)),
             ],
             options={
             },
@@ -34,14 +35,33 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Job',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True, auto_created=True, verbose_name='ID')),
-                ('name', models.CharField(max_length=50)),
+                ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
                 ('start_date', models.DateField()),
-                ('end_date', models.DateField(default=None, blank=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Gig',
+            fields=[
+                ('job_ptr', models.OneToOneField(to='attendance.Job', parent_link=True, serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=80)),
+                ('end_date', models.DateField(blank=True, default=None)),
                 ('call_time', models.TimeField(blank=True, null=True)),
-                ('location', models.CharField(max_length=50)),
-                ('job_type', models.IntegerField(choices=[(0, 'Rehearsal'), (1, 'Parade'), (2, 'Concert')], default=0)),
-                ('attendance_record', models.OneToOneField(to='attendance.AttendanceRecord', blank=True, null=True)),
+                ('location', models.CharField(max_length=80)),
+                ('job_type', models.CharField(choices=[('C', 'Concert'), ('P', 'Parade')], max_length=1)),
+            ],
+            options={
+            },
+            bases=('attendance.job',),
+        ),
+        migrations.CreateModel(
+            name='Leave',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
+                ('start_date', models.DateField()),
+                ('end_date', models.DateField(blank=True, default=None)),
             ],
             options={
             },
@@ -50,7 +70,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Musician',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True, auto_created=True, verbose_name='ID')),
+                ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
                 ('rank', models.CharField(choices=[('00', 'Musn'), ('10', 'Pte'), ('20', 'Cpl'), ('30', 'MCpl'), ('40', 'Sgt'), ('50', 'CSgt'), ('60', 'WO'), ('65', 'DM'), ('70', 'Lt'), ('80', 'Capt'), ('90', 'Maj')], max_length=2)),
                 ('first_name', models.CharField(max_length=30)),
                 ('last_name', models.CharField(max_length=30)),
@@ -65,19 +85,18 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='Roster',
+            name='Rehearsal',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True, auto_created=True, verbose_name='ID')),
-                ('musicians_booked', models.ManyToManyField(default=None, blank=True, null=True, to='attendance.Musician')),
+                ('job_ptr', models.OneToOneField(to='attendance.Job', parent_link=True, serialize=False, auto_created=True, primary_key=True)),
             ],
             options={
             },
-            bases=(models.Model,),
+            bases=('attendance.job',),
         ),
         migrations.CreateModel(
             name='Uniform',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True, auto_created=True, verbose_name='ID')),
+                ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
                 ('name', models.CharField(max_length=30)),
                 ('headdress', models.CharField(choices=[('BS', 'Bearskin'), ('FC', 'Flat Cap'), ('BE', 'Beret'), ('FO', 'FFO'), ('BF', 'Bearskin & Flat Cap')], max_length=2)),
                 ('tunic', models.CharField(choices=[('SC', 'Scarlet'), ('WH', 'Whites'), ('1A', 'DEU 1A'), ('3B', 'DEU 3B')], max_length=2)),
@@ -88,27 +107,51 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.AddField(
-            model_name='job',
-            name='roster',
-            field=models.OneToOneField(to='attendance.Roster', blank=True, null=True),
+            model_name='leave',
+            name='musician',
+            field=models.ForeignKey(to='attendance.Musician'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='job',
+            name='musicians_attending',
+            field=models.ManyToManyField(related_name='attending', to='attendance.Musician', through='attendance.AttendanceRecord'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='gig',
+            name='musicians_contacted',
+            field=models.ManyToManyField(related_name='contacted', to='attendance.Musician', through='attendance.BookingRecord'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='gig',
             name='uniform',
-            field=models.ForeignKey(default=None, to='attendance.Uniform', blank=True, null=True),
+            field=models.ForeignKey(to='attendance.Uniform', blank=True, default=None, null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='bookingrecord',
+            name='gig',
+            field=models.ForeignKey(to='attendance.Gig'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='bookingrecord',
+            name='musician',
+            field=models.ForeignKey(related_name='booked', to='attendance.Musician'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='attendancerecord',
-            name='musicians_present',
-            field=models.ManyToManyField(to='attendance.Musician', default=None, null=True, related_name='present'),
+            name='job',
+            field=models.ForeignKey(to='attendance.Job'),
             preserve_default=True,
         ),
         migrations.AddField(
-            model_name='activeroster',
-            name='musicians_active',
-            field=models.ManyToManyField(to='attendance.Musician', default=None, null=True, related_name='active'),
+            model_name='attendancerecord',
+            name='musician',
+            field=models.ForeignKey(related_name='attended', to='attendance.Musician'),
             preserve_default=True,
         ),
     ]

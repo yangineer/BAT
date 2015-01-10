@@ -4,7 +4,7 @@ import csv
 from datetime import datetime
 import django
 django.setup()
-from attendance.models import Musician, Job, Roster, AttendanceRecord
+from attendance.models import Musician, Rehearsal, AttendanceRecord
 
 def populate():
 	with open('RehearsalAttend.csv') as csvfile:
@@ -24,44 +24,39 @@ def populate():
 				name = row[2]
 				musician = create_musician(rank, name, section)
 				for index, attendance_data in enumerate(row[3:]):
-					update_roster(gigs[index + 3], musician)
-					_attendance = create_attendance(gigs[index + 3])
-					if attendance_data == '1':
-						#print("attendance")
-						update_attendance(_attendance, musician)
-					else:
+					update_attendance(gigs[index + 3], musician, attendance_data)
+					# _attendance = create_attendance(gigs[index + 3])
+					# if attendance_data == '1':
+					# 	#print("attendance")
+					# 	update_attendance(_attendance, musician)
+					# else:
 						
-						if attendance_data == '0':
-							#print("absent")
-							pass
-						else:
-							#print("absent due to " + attendance_data)
-							pass
+					# 	if attendance_data == '0':
+					# 		#print("absent")
+					# 		pass
+					# 	else:
+					# 		#print("absent due to " + attendance_data)
+					# 		pass
 
 
-def update_roster(date_string, musician):
+def update_attendance(date_string, musician, attendance_data):
 	date = datetime.strptime(date_string, "%d-%b-%y").date()
-	job = Job.objects.get(start_date=date)
-	roster = job.roster
-	roster.musicians_booked.add(musician)
-
-def create_attendance(date_string):
-	date = datetime.strptime(date_string, "%d-%b-%y").date()
-	job = Job.objects.get(start_date=date)
-	#_attendance = AttendanceRecord.objects.get_or_create(job=job)[0]
-	_attendance = job.attendance_record
-	return _attendance
-
-def update_attendance(_attendance, musician):
-	_attendance.musicians_present.add(musician)
+	rehearsal = Rehearsal.objects.get(start_date=date)
+	if attendance_data == '1':
+		attendance_record = AttendanceRecord(musician=musician, job=rehearsal, status='O')
+	elif attendance_data == '0':
+		attendance_record = AttendanceRecord(musician=musician, job=rehearsal, status='A')
+	else:
+		attendance_record = AttendanceRecord(musician=musician, job=rehearsal, status='A', reason=attendance_data)
+	attendance_record.save()
 
 def create_gigs(gig_string):
 	for rehearsal_date in gig_string[3:]:
 		date = datetime.strptime(rehearsal_date, "%d-%b-%y").date()
 		#print ("Creating a rehearsal for " + date.isoformat())
-		name = 'Rehearsal'
-		location = 'Fort York Armoury'
-		Job.objects.get_or_create(name=name, location=location, start_date=date)
+		#name = 'Rehearsal'
+		#location = 'Fort York Armoury'
+		Rehearsal.objects.get_or_create(start_date=date)
 
 def create_musician(rank, full_name, section):
 	names = full_name.split(sep=', ')

@@ -1,20 +1,18 @@
 from django.forms.extras.widgets import SelectDateWidget
 from django import forms
-from attendance.models import Job, Musician, AttendanceRecord
+from attendance.models import Gig, Musician, Rehearsal
 
-class JobForm(forms.ModelForm):
+class GigForm(forms.ModelForm):
 
 	class Meta:
-		model = Job
+		model = Gig
 		fields = ['name', 'start_date', 'location', 'job_type']
 		widgets = {'start_date': SelectDateWidget()}
 
 
 class ChecklistForm(forms.ModelForm):
-	#present = forms.BooleanField(widget=forms.CheckboxInput)
-	#musicians_present = forms.ModelMultipleChoiceField(queryset=Musician.objects.all(), widget=forms.CheckboxSelectMultiple)
-
+	
 	class Meta:
-		model = AttendanceRecord
-		fields = ['musicians_present']
-		widgets = {'musicians_present': forms.CheckboxSelectMultiple}
+		model = Rehearsal
+		fields = ['musicians_attending']
+		widgets = {'musicians_attending': forms.CheckboxSelectMultiple}

@@ -3,8 +3,8 @@ from django.contrib.auth.views import logout, login
 from django.views.generic import ListView, TemplateView, DetailView, UpdateView, CreateView
 from django.views.generic.base import ContextMixin
 #from django.views.generic.edit import ProcessFormView
-from attendance.models import Musician, Job, AttendanceRecord
-from attendance.forms import JobForm, ChecklistForm
+from attendance.models import Musician, Job, AttendanceRecord, Rehearsal, Gig
+from attendance.forms import GigForm, ChecklistForm
 #from django.forms.formsets import formset_factory
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -85,7 +85,7 @@ class TimeList(ListView, LoginRequiredMixin, TimesMixin):
 		return context
 
 class RehearsalYearView(TimeList):
-	queryset = Job.objects.filter(job_type=0).order_by('start_date')
+	queryset = Rehearsal.objects.filter().order_by('start_date')
 
 	def get_context_data(self, **kwargs):
 		context = super(RehearsalYearView, self).get_context_data(**kwargs)
@@ -93,7 +93,7 @@ class RehearsalYearView(TimeList):
 		return context
 
 class GigYearView(TimeList):
-	queryset = Job.objects.exclude(job_type=0).order_by('start_date')
+	queryset = Gig.objects.all().order_by('start_date')
 
 	def get_context_data(self, **kwargs):
 		context = super(GigYearView, self).get_context_data(**kwargs)
@@ -131,14 +131,14 @@ class MusicianView(DetailView, LoginRequiredMixin, MusicianMixin):
 class AddJobView(CreateView, LoginRequiredMixin, AddMixin):
 	template_name = 'attendance/addjob.html'
 	#model = Job
-	form_class = JobForm
+	form_class = GigForm
 	context_object_name = "job"
 
 class AddRehearsalView(CreateView, LoginRequiredMixin, AddMixin):
 	template_name = 'attendance/addjob.html'
 	context_object_name = 'job'
 	#model = Job
-	form_class = JobForm
+	form_class = GigForm
 	initial = {
 		'name': 'Rehearsal',
 		'location': 'Fort York Armoury',
@@ -154,29 +154,29 @@ class AddRosterView(DetailView, LoginRequiredMixin, AddMixin):
 		context['title'] = 'Roster'
 		return context
 
-class AddAttendanceView(UpdateView, LoginRequiredMixin, AddMixin):
-	model = AttendanceRecord
-	context_object_name = 'attendance_record'
-	template_name = 'attendance/add_attendance.html'
-	form_class = ChecklistForm
-	# success_url = get_object().job.get_absolute_url()
+# class AddAttendanceView(UpdateView, LoginRequiredMixin, AddMixin):
+# 	model = AttendanceRecord
+# 	context_object_name = 'attendance_record'
+# 	template_name = 'attendance/add_attendance.html'
+# 	form_class = ChecklistForm
+# 	# success_url = get_object().job.get_absolute_url()
 
-	def get_context_data(self, **kwargs):
-		context = super(AddAttendanceView, self).get_context_data(**kwargs)
-		context['title'] = 'Attendance'
-		context['job'] = self.get_object().job
-		return context
+# 	def get_context_data(self, **kwargs):
+# 		context = super(AddAttendanceView, self).get_context_data(**kwargs)
+# 		context['title'] = 'Attendance'
+# 		context['job'] = self.get_object().job
+# 		return context
 
-class AddAttendanceListView(ListView, LoginRequiredMixin, AddMixin):
-	template_name = 'attendance/add_attendance_list.html'
-	queryset = Job.objects.filter(attendance_record__musicians_present=None)
-	context_object_name = 'no_jobs'
+# class AddAttendanceListView(ListView, LoginRequiredMixin, AddMixin):
+# 	template_name = 'attendance/add_attendance_list.html'
+# 	queryset = Job.objects.filter(attendance_record__musicians_present=None)
+# 	context_object_name = 'no_jobs'
 
-	def get_context_data(self, **kwargs):
-		context = super(AddAttendanceListView, self).get_context_data(**kwargs)
-		jobs = Job.objects.exclude(attendance_record__musicians_present=None)
-		context['jobs'] = jobs
-		return context
+# 	def get_context_data(self, **kwargs):
+# 		context = super(AddAttendanceListView, self).get_context_data(**kwargs)
+# 		jobs = Job.objects.exclude(attendance_record__musicians_present=None)
+# 		context['jobs'] = jobs
+# 		return context
 
 class Analytics(TemplateView, LoginRequiredMixin, AnalyticsMixin):
 	template_name = "attendance/analytics.html"
