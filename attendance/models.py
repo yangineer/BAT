@@ -87,6 +87,7 @@ class Musician(models.Model):
 class Leave(models.Model):
 	""" Represents a leave of absense, ex. ED&T, CG Tasking, Borden, etc. """
 
+	reason = models.CharField(max_length=80)
 	musician = models.ForeignKey(Musician)
 	start_date = models.DateField()
 	end_date = models.DateField(blank=True, default=None)
