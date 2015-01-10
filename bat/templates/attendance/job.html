@@ -15,7 +15,7 @@
 	{% if not job.has_attendance %}
 	<li>Attendance has not been recorded yet.</li>
 </ul>
-<a class="btn btn-default" href="{% url 'attendance:add_attendance' job.attendance_record.pk %}" role="button">Add Attendance</a>
+<a class="btn btn-default" href="#" role="button">Add Attendance</a>
 	{% else %}
 	<li>Musicians Present: {{job.num_present}} out of {{job.num_booked}}</li>
 	<li>On Strength Musicians Present: {{job.num_on_strength_present}} out of {{job.num_on_strength_booked}}

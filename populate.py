@@ -4,7 +4,7 @@ import csv
 from datetime import datetime
 import django
 django.setup()
-from attendance.models import Musician, Rehearsal, AttendanceRecord
+from attendance.models import Musician, Rehearsal, RehearsalAttendance
 
 def populate():
 	with open('RehearsalAttend.csv') as csvfile:
@@ -43,11 +43,11 @@ def update_attendance(date_string, musician, attendance_data):
 	date = datetime.strptime(date_string, "%d-%b-%y").date()
 	rehearsal = Rehearsal.objects.get(start_date=date)
 	if attendance_data == '1':
-		attendance_record = AttendanceRecord(musician=musician, job=rehearsal, status='O')
+		attendance_record = RehearsalAttendance(musician=musician, job=rehearsal, status='O')
 	elif attendance_data == '0':
-		attendance_record = AttendanceRecord(musician=musician, job=rehearsal, status='A')
+		attendance_record = RehearsalAttendance(musician=musician, job=rehearsal, status='A')
 	else:
-		attendance_record = AttendanceRecord(musician=musician, job=rehearsal, status='A', reason=attendance_data)
+		attendance_record = RehearsalAttendance(musician=musician, job=rehearsal, status='A', reason=attendance_data)
 	attendance_record.save()
 
 def create_gigs(gig_string):

@@ -3,7 +3,7 @@ from django.contrib.auth.views import logout, login
 from django.views.generic import ListView, TemplateView, DetailView, UpdateView, CreateView
 from django.views.generic.base import ContextMixin
 #from django.views.generic.edit import ProcessFormView
-from attendance.models import Musician, Job, AttendanceRecord, Rehearsal, Gig
+from attendance.models import Musician, Rehearsal, Gig
 from attendance.forms import GigForm, ChecklistForm
 #from django.forms.formsets import formset_factory
 from django.contrib.auth.decorators import login_required
@@ -70,7 +70,7 @@ class MusicianList(ListView, LoginRequiredMixin, MusicianMixin):
 class TimeList(ListView, LoginRequiredMixin, TimesMixin):
 	template_name = "attendance/times.html"
 	#queryset = Job.objects.filter(start_date__year=2014).order_by('start_date')
-	queryset = Job.objects.all().order_by('start_date')
+	queryset = Rehearsal.objects.all().order_by('start_date')
 	context_object_name = "jobs"
 
 	def get_context_data(self, **kwargs):
@@ -80,7 +80,8 @@ class TimeList(ListView, LoginRequiredMixin, TimesMixin):
 		context['musicians'] = musicians
 
 		for job in self.queryset:
-			context[job] = job.attendance_record.musicians_present.all()
+			#context[job] = job.attendance_record.musicians_present.all()
+			pass
 
 		return context
 
@@ -101,14 +102,17 @@ class GigYearView(TimeList):
 		return context
 
 class JobList(ListView, LoginRequiredMixin, JobMixin):
-	model = Job
+	model = Rehearsal
 	template_name = "attendance/jobs.html"
 	context_object_name = "jobs"
 
 class JobView(DetailView, LoginRequiredMixin, JobMixin):
-	model = Job
+	model = Rehearsal
 	context_object_name = 'job'
 	template_name = "attendance/job.html"
+
+	def attendance_dict(self):
+		pass
 
 	def get_context_data(self, **kwargs):
 		context = super(JobView, self).get_context_data(**kwargs)
@@ -124,8 +128,8 @@ class MusicianView(DetailView, LoginRequiredMixin, MusicianMixin):
 	def get_context_data(self, **kwargs):
 		context = super(MusicianView, self).get_context_data(**kwargs)
 		musicians = Musician.objects.all()
-		context['total_rehearsals'] = Job.objects.filter(job_type=0).count()
-		context['total_gigs'] = Job.objects.exclude(job_type=0).count()
+		context['total_rehearsals'] = Rehearsal.objects.count()
+		context['total_gigs'] = Gig.objects.count()
 		return context
 
 class AddJobView(CreateView, LoginRequiredMixin, AddMixin):
@@ -145,7 +149,7 @@ class AddRehearsalView(CreateView, LoginRequiredMixin, AddMixin):
 		'call_time': '19:45'}
 
 class AddRosterView(DetailView, LoginRequiredMixin, AddMixin):
-	model = Job
+	model = Rehearsal
 	context_object_name = 'job'
 	template_name = 'attendance/add_attendance.html'
 

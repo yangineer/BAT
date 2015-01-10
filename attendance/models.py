@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 
 # Create your models here.
 class Musician(models.Model):
@@ -45,22 +46,40 @@ class Musician(models.Model):
 		return self.last_name + ", " + self.first_name
 
 	def present_rehearsals(self):
-		return []
+		return Rehearsal.objects.filter(
+			Q(rehearsalattendance__musician=self), 
+			Q(rehearsalattendance__status='O') | Q(rehearsalattendance__status='L')
+		)
+
 
 	def present_gigs(self):
-		return []
+		return Gig.objects.filter(
+			Q(gigattendance__musician=self), 
+			Q(gigattendance__status='O') | Q(gigattendance__status='L')
+		)
 
 	def num_present_rehearsals(self):
-		return len(self.present_rehearsals())
+		return self.rehearsalattendance_record.exclude(Q(status='A') | Q(status='E')).count()
 
 	def num_present_gigs(self):
-		return len(self.present_gigs())
+		return self.gigattendance_record.exclude(status='A').count()
 
 	def percent_present_rehearsals(self):
-		return 100 * self.num_present_rehearsals() / Rehearsal.objects.count()
+		total = Rehearsal.objects.count()
+		if total == 0:
+			return 100
+		else:
+			return 100 * self.num_present_rehearsals() / total
+
+	def num_contacted_gigs(self):
+		return self.booking.count()
 
 	def percent_present_gigs(self):
-		return 100 * self.num_present_gigs() / Gig.objects.count()
+		total = self.num_contacted_gigs()
+		if total == 0:
+			return 100
+		else:
+			return 100 * self.num_present_gigs() / total
 
 	class Meta:
 		ordering = ['instrument_section', 'is_retired','-is_on_strength', '-rank']
@@ -74,6 +93,7 @@ class Leave(models.Model):
 
 class Uniform(models.Model):
 	""" Represents the different uniform/kit options """
+	
 	HEADDRESS_CHOICES = (
 		('BS', 'Bearskin'),
 		('FC', 'Flat Cap'),
@@ -102,20 +122,30 @@ class Uniform(models.Model):
 		return '%s: %s/%s/%s' % (self.name, self.get_headdress_display(), self.get_tunic_display(), self.get_kit_display())
 
 class AttendanceRecord(models.Model):
-	""" Represents the attendance record """
+	""" Represents an abstract attendance record """
+
 	STATUS_CHOICES = (
 		('O', 'On-time'),
 		('L', 'Late'),
 		('A', 'Absent'),
+		('E', 'Exempt'),
 	)
 
-	musician = models.ForeignKey(Musician, related_name='attended')
-	job = models.ForeignKey('Job')
+	musician = models.ForeignKey(Musician, related_name='%(class)s_record')
 	status = models.CharField(max_length=1, choices = STATUS_CHOICES)
 	reason = models.TextField(blank=True, null=True)
 
+	class Meta:
+		abstract = True
+
+class RehearsalAttendance(AttendanceRecord):
+	job = models.ForeignKey('Rehearsal')
+
+class GigAttendance(AttendanceRecord):
+	job = models.ForeignKey('Gig')
+
 class BookingRecord(models.Model):
-	""" Represents the booking record """
+	""" Represents the booking record for gigs only"""
 
 	STATUS_CHOICES = (
 		('Y', 'Yes'),
@@ -124,26 +154,15 @@ class BookingRecord(models.Model):
 		('R', 'Yet to Reply'),
 	)
 
-	musician = models.ForeignKey(Musician, related_name='booked')
+	musician = models.ForeignKey(Musician, related_name='booking')
 	gig = models.ForeignKey('Gig')
 	status = models.CharField(max_length=1, choices=STATUS_CHOICES)
 
-class Job(models.Model):
-	""" Reresents a generic job """
-	start_date = models.DateField()
-	musicians_attending = models.ManyToManyField(Musician, related_name='attending', through='AttendanceRecord')
-
-	def num_present(self):
-		return self.musicians_attending.count()
-
-	def num_on_strength_present(self):
-		return self.musicians_attending.filter(is_on_strength=True).count()
-
-	def has_attendance(self):
-		return self.num_present()
-
-class Rehearsal(Job):
+class Rehearsal(models.Model):
 	""" Represents a regular rehearsal """
+
+	start_date = models.DateField()
+	musicians_attending = models.ManyToManyField(Musician, related_name='rehearsals_attending', through=RehearsalAttendance)
 
 	def name(self):
 		return "Rehearsal"
@@ -157,13 +176,35 @@ class Rehearsal(Job):
 	def __str__(self):
 		return 'Rehearsal on %s' % (self.start_date)
 
-class Gig(Job):
+	def num_present(self):
+		return self.rehearsalattendance_set.filter(Q(status='O') | Q(status='L')).count()
+
+	def num_on_strength_present(self):
+		attendances = self.rehearsalattendance_set.filter(Q(status='O') | Q(status='L')).select_related('musicians')
+		on_str_musicians = [x.musician for x in attendances if x.musician.is_on_strength]
+		return len(on_str_musicians)
+
+	def num_booked(self):
+		return self.rehearsalattendance_set.exclude(status='E').count()
+
+	def num_on_strength_booked(self):
+		attendances = self.rehearsalattendance_set.exclude(status='E').select_related('musicians')
+		on_str_musicians = [x.musician for x in attendances if x.musician.is_on_strength]
+		return len(on_str_musicians)
+
+	def has_attendance(self):
+		return self.num_present()
+
+class Gig(models.Model):
 	""" Represents an engagement job """
 
 	TYPE_CHOICES = (
 		('C', 'Concert'),
 		('P', 'Parade'),
 	)
+
+	start_date = models.DateField()
+	musicians_attending = models.ManyToManyField(Musician, related_name='gigs_attending', through=GigAttendance)
 
 	name = models.CharField(max_length=80)
 	end_date = models.DateField(blank=True, default=None)
@@ -197,3 +238,12 @@ class Gig(Job):
 
 	def has_booking(self):
 		return self.musicians_contacted.count()
+
+	def num_present(self):
+		return self.musicians_attending.count()
+
+	def num_on_strength_present(self):
+		return self.musicians_attending.filter(is_on_strength=True).count()
+
+	def has_attendance(self):
+		return self.num_present()
