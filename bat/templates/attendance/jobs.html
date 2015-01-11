@@ -1,9 +1,17 @@
 {% extends 'attendance/framed_base.html' %}
 {% block content %}
 <h3>Job List View</h3>
+<ul class="nav nav-tabs">
+	<li role="presentation"{% if listview == 'rehearsal' %} class="active" {% endif %}><a href="{% url 'attendance:rehearsals' %}">Rehearsals</a></li>
+	<li role="presentation"{% if listview == 'gig' %} class="active" {% endif %}><a href="{% url 'attendance:gigs' %}">Gigs</a></li>
+</ul>
 <ul>
 	{% for job in jobs %}
-		<li><a href="{% url 'attendance:jobview' job.pk %}">{{job}}</a></li>
+		{% if listview == 'rehearsal' %}
+			<li><a href="{% url 'attendance:rehearsalview' job.pk %}">{{job}}</a></li>
+		{% elif listview == 'gig' %}
+			<li><a href="{% url 'attendance:gigview' job.pk %}">{{job}}</a></li>
+		{% endif %}
 	{% endfor %}
 </ul>
 {% endblock %}

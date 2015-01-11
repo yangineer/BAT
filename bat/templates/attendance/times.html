@@ -2,7 +2,6 @@
 {% block content %}
 <h3>Year-to-Date View</h3>
 <ul class="nav nav-tabs">
-	<li role="presentation"{% if yearview == 'all' %} class="active" {% endif %}><a href="{% url 'attendance:times' %}">All Events</a></li>
 	<li role="presentation"{% if yearview == 'rehearsal' %} class="active" {% endif %}><a href="{% url 'attendance:times_rehearsal' %}">Rehearsals</a></li>
 	<li role="presentation"{% if yearview == 'gig' %} class="active" {% endif %}><a href="{% url 'attendance:times_gig' %}">Gigs</a></li>
 </ul>
@@ -12,7 +11,10 @@
 			<th>Rank</th>
 			<th>Name</th>
 			{% for job in jobs %}
-			<th><a href="{% url 'attendance:jobview' job.pk %}">{% if yearview == 'gig' %} {{job.name}} on {{job.start_date}} {% else %}{{ job.start_date }}{% endif %}</a></th>
+				{% if yearview == 'gig' %} 
+				<th><a href="{% url 'attendance:gigview' job.pk %}">{{job.name}} on {{job.start_date}}</a></th>
+				{% else %}<th><a href="{% url 'attendance:rehearsalview' job.pk %}">{{job.start_date }}</a></th>
+				{% endif %}
 			{% endfor %}
 		</tr>
 		{% for musician in musicians %}

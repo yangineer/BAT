@@ -158,6 +158,7 @@ class BookingRecord(models.Model):
 		('N', 'No'),
 		('M', 'Maybe'),
 		('R', 'Yet to Reply'),
+		('Z', 'Not Contacted'),
 	)
 
 	musician = models.ForeignKey(Musician, related_name='booking')

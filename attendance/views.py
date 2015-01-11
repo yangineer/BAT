@@ -1,11 +1,13 @@
 from django.shortcuts import render
 from django.contrib.auth.views import logout, login
+
 from django.views.generic import ListView, TemplateView, DetailView, UpdateView, CreateView
+
 from django.views.generic.base import ContextMixin
-#from django.views.generic.edit import ProcessFormView
-from attendance.models import Musician, Rehearsal, Gig
+
+from attendance.models import Musician, Rehearsal, Gig, RehearsalAttendance
 from attendance.forms import GigForm, ChecklistForm
-#from django.forms.formsets import formset_factory
+
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.core.urlresolvers import reverse_lazy
@@ -75,14 +77,8 @@ class TimeList(ListView, LoginRequiredMixin, TimesMixin):
 
 	def get_context_data(self, **kwargs):
 		context = super(TimeList, self).get_context_data(**kwargs)
-		context['yearview'] = 'all'
 		musicians = Musician.objects.all()
 		context['musicians'] = musicians
-
-		for job in self.queryset:
-			#context[job] = job.attendance_record.musicians_present.all()
-			pass
-
 		return context
 
 class RehearsalYearView(TimeList):
@@ -101,12 +97,47 @@ class GigYearView(TimeList):
 		context['yearview'] = 'gig'
 		return context
 
-class JobList(ListView, LoginRequiredMixin, JobMixin):
+class RehearsalList(ListView, LoginRequiredMixin, JobMixin):
 	model = Rehearsal
 	template_name = "attendance/jobs.html"
 	context_object_name = "jobs"
 
-class JobView(DetailView, LoginRequiredMixin, JobMixin):
+	def get_context_data(self, **kwargs):
+		context = super(RehearsalList, self).get_context_data(**kwargs)
+		context['listview'] = 'rehearsal'
+		return context
+
+class GigList(ListView, LoginRequiredMixin, JobMixin):
+	model = Gig
+	template_name = "attendance/jobs.html"
+	context_object_name = "jobs"
+
+	def get_context_data(self, **kwargs):
+		context = super(GigList, self).get_context_data(**kwargs)
+		context['listview'] = 'gig'
+		return context
+
+class GigView(DetailView, LoginRequiredMixin, JobMixin):
+	model = Gig
+	context_object_name = 'job'
+	template_name = 'attendance/job.html'
+
+	def attendance_dict(self):
+		data = {}
+		for musician in self.object.musicians_attending.all():
+			attendance_record = GigAttendance.objects.get(job=self.object, musician=musician)
+			if attendance_record.reason:
+				data[musician] = attendance_record.reason 
+			else:
+				data[musician] = attendance_record.status
+		return data
+
+	def get_context_data(self, **kwargs):
+		context = super(GigView, self).get_context_data(**kwargs)
+		context['data'] = self.attendance_dict()
+		return context
+
+class RehearsalView(DetailView, LoginRequiredMixin, JobMixin):
 	model = Rehearsal
 	context_object_name = 'job'
 	template_name = "attendance/job.html"
@@ -114,7 +145,7 @@ class JobView(DetailView, LoginRequiredMixin, JobMixin):
 	def attendance_dict(self):
 		data = {}
 		for musician in self.object.musicians_attending.all():
-			attendance_record = self.object.attendance().objects.get(job=self.object, musician=musician)
+			attendance_record = RehearsalAttendance.objects.get(job=self.object, musician=musician)
 			if attendance_record.reason:
 				data[musician] = attendance_record.reason 
 			else:
@@ -123,9 +154,7 @@ class JobView(DetailView, LoginRequiredMixin, JobMixin):
 
 
 	def get_context_data(self, **kwargs):
-		context = super(JobView, self).get_context_data(**kwargs)
-		# musicians = Musician.objects.all()
-		# context['musicians'] = musicians
+		context = super(RehearsalView, self).get_context_data(**kwargs)
 		context['data'] = self.attendance_dict()
 		return context
 
@@ -167,29 +196,29 @@ class AddRosterView(DetailView, LoginRequiredMixin, AddMixin):
 		context['title'] = 'Roster'
 		return context
 
-# class AddAttendanceView(UpdateView, LoginRequiredMixin, AddMixin):
-# 	model = AttendanceRecord
-# 	context_object_name = 'attendance_record'
-# 	template_name = 'attendance/add_attendance.html'
-# 	form_class = ChecklistForm
-# 	# success_url = get_object().job.get_absolute_url()
+class AddAttendanceView(UpdateView, LoginRequiredMixin, AddMixin):
+	model = RehearsalAttendance
+	context_object_name = 'attendance_record'
+	template_name = 'attendance/add_attendance.html'
+	form_class = ChecklistForm
+	# success_url = get_object().job.get_absolute_url()
 
-# 	def get_context_data(self, **kwargs):
-# 		context = super(AddAttendanceView, self).get_context_data(**kwargs)
-# 		context['title'] = 'Attendance'
-# 		context['job'] = self.get_object().job
-# 		return context
+	def get_context_data(self, **kwargs):
+		context = super(AddAttendanceView, self).get_context_data(**kwargs)
+		context['title'] = 'Attendance'
+		context['job'] = self.get_object().job
+		return context
 
-# class AddAttendanceListView(ListView, LoginRequiredMixin, AddMixin):
-# 	template_name = 'attendance/add_attendance_list.html'
-# 	queryset = Job.objects.filter(attendance_record__musicians_present=None)
-# 	context_object_name = 'no_jobs'
+class AddAttendanceListView(ListView, LoginRequiredMixin, AddMixin):
+	template_name = 'attendance/add_attendance_list.html'
+	queryset = Rehearsal.objects.all()
+	context_object_name = 'no_jobs'
 
-# 	def get_context_data(self, **kwargs):
-# 		context = super(AddAttendanceListView, self).get_context_data(**kwargs)
-# 		jobs = Job.objects.exclude(attendance_record__musicians_present=None)
-# 		context['jobs'] = jobs
-# 		return context
+	def get_context_data(self, **kwargs):
+		context = super(AddAttendanceListView, self).get_context_data(**kwargs)
+		jobs = Rehearsal.objects.all()
+		context['jobs'] = jobs
+		return context
 
 class Analytics(TemplateView, LoginRequiredMixin, AnalyticsMixin):
 	template_name = "attendance/analytics.html"
