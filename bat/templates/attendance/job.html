@@ -28,22 +28,27 @@
 			<th>Name</th>
 			<th>Attended?</th>
 		</tr>
-		{% with present=job.attendance_record.musicians_present.all %}
-		{% for musician in musicians %}
+		
+		{% for musician, attendance in data.items %}
 		<tr{% if musician.is_on_strength %} class="warning"{% endif %}>
 			<td>{{musician.get_rank_display}}</td>
 			<td>{{musician.name}}</td>
-			{% if musician not in present %}
 			<td>
-				<span class="glyphicon glyphicon-remove"></span>
-			{% else %}
-			<td>
-				<span class="glyphicon glyphicon-ok"></span>
-			{% endif %}
+				{% if attendance == 'O' %}
+					<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+				{% elif attendance == 'L' %}
+					<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+				{% elif attendance == 'A' %}
+					<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+				{% elif attendance == 'E' %}
+					<span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
+				{% else %}
+					{{attendance}}
+				{% endif %}
 			</td> 
 		</tr>
 		{% endfor %}
-		{% endwith %}
+
 	</table>
 </div>
 {% endif %}

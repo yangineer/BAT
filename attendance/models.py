@@ -51,7 +51,6 @@ class Musician(models.Model):
 			Q(rehearsalattendance__status='O') | Q(rehearsalattendance__status='L')
 		)
 
-
 	def present_gigs(self):
 		return Gig.objects.filter(
 			Q(gigattendance__musician=self), 
@@ -64,8 +63,14 @@ class Musician(models.Model):
 	def num_present_gigs(self):
 		return self.gigattendance_record.exclude(status='A').count()
 
+	def num_total_rehearsals(self):
+		return self.rehearsalattendance_record.count()
+
+	def num_total_gigs(self):
+		return self.num_contacted_gigs()
+
 	def percent_present_rehearsals(self):
-		total = Rehearsal.objects.count()
+		total = self.num_total_rehearsals()
 		if total == 0:
 			return 100
 		else:
@@ -196,6 +201,9 @@ class Rehearsal(models.Model):
 	def has_attendance(self):
 		return self.num_present()
 
+	def attendance(self):
+		return RehearsalAttendance
+
 class Gig(models.Model):
 	""" Represents an engagement job """
 
@@ -248,3 +256,6 @@ class Gig(models.Model):
 
 	def has_attendance(self):
 		return self.num_present()
+
+	def attendance(self):
+		return GigAttendance

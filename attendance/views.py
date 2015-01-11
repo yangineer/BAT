@@ -112,12 +112,21 @@ class JobView(DetailView, LoginRequiredMixin, JobMixin):
 	template_name = "attendance/job.html"
 
 	def attendance_dict(self):
-		pass
+		data = {}
+		for musician in self.object.musicians_attending.all():
+			attendance_record = self.object.attendance().objects.get(job=self.object, musician=musician)
+			if attendance_record.reason:
+				data[musician] = attendance_record.reason 
+			else:
+				data[musician] = attendance_record.status
+		return data
+
 
 	def get_context_data(self, **kwargs):
 		context = super(JobView, self).get_context_data(**kwargs)
-		musicians = Musician.objects.all()
-		context['musicians'] = musicians
+		# musicians = Musician.objects.all()
+		# context['musicians'] = musicians
+		context['data'] = self.attendance_dict()
 		return context
 
 class MusicianView(DetailView, LoginRequiredMixin, MusicianMixin):
