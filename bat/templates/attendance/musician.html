@@ -13,7 +13,7 @@
 		<h4>Rehearsals Attended:</h4>
 		<ul>
 			{% for rehearsal in musician.present_rehearsals %}
-			<li><a href="{% url 'attendance:jobview' rehearsal.pk %}">{{rehearsal.start_date}}</a></li>
+			<li><a href="{% url 'attendance:rehearsalview' rehearsal.pk %}">{{rehearsal.start_date}}</a></li>
 			{% endfor %}
 		</ul>
 	</div>
@@ -21,7 +21,7 @@
 		<h4>Gigs Attended:</h4>
 		<ul>
 			{% for gig in musician.present_gigs %}
-			<li><a href="{% url 'attendance:jobview' gig.pk %}">{{gig}}</a></li>
+			<li><a href="{% url 'attendance:gigview' gig.pk %}">{{gig}}</a></li>
 			{% endfor %}
 		</ul>
 	</div>
